@@ -9,21 +9,14 @@
       </nav>
     </header>
 
-    <main>
-      <p>Welcome home! Use the navigation above to visit your page.</p>
-    </main>
+    <main class="main-content">
+      <p>Welcome! Please select a user type above to get started.</p> </main>
 
     <footer>
       &copy; 2025 Yamaguchi. All rights reserved.
     </footer>
   </div>
 </template>
-
-<script setup>
-
-</script>
-
 <style>
-
 @import '../assets/styles.css';
 </style>

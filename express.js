@@ -1,45 +1,79 @@
-import express from 'express';
-import cors from 'cors'; // Import the cors module
-import path from 'path';
-import { fileURLToPath } from 'url';
+  import express from 'express';
+  import cors from 'cors';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+  const app = express();
+  const PORT = 5000;
 
-const app = express();
-const PORT = 5000;
+  let users = [];
+  let students = [];
+  let admins = [];
+  let nextUserId = 1;
+  let nextStudentId = 1;
+  let nextAdminId = 1;
 
-// Middleware
-app.use(express.json()); // Parses incoming JSON requests
-app.use(express.urlencoded({ extended: true })); // Parses URL-encoded form data
-app.use(cors()); // Enables Cross-Origin Resource Sharing
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+  app.use(cors());
 
-// API Endpoints
-// These endpoints will receive data from your Vue.js forms
+  app.post('/admins', (req, res) => {
+    const newAdmin = { id: nextAdminId++, ...req.body };
+    admins.push(newAdmin);
+    console.log('New admin added:', newAdmin);
+    res.status(201).json({ message: 'Admin added successfully!', data: newAdmin });
+  });
 
-app.post('/getAdmin', (req, res) => {
-  const { firstName, lastName } = req.body;
-  console.log('Received data from Admin form:', req.body);
-  // In a real app, you would process this data, e.g., save it to a database
-  res.status(200).json({ message: 'Admin data received successfully!', data: { firstName, lastName } });
-});
+  app.post('/students', (req, res) => {
+    const newStudent = { id: nextStudentId++, ...req.body };
+    students.push(newStudent);
+    console.log('New student added:', newStudent);
+    res.status(201).json({ message: 'Student added successfully!', data: newStudent });
+  });
 
-app.post('/getStudent', (req, res) => {
-  const { firstName, lastName, yearAndSection } = req.body;
-  console.log('Received data from Student form:', req.body);
-  res.status(200).json({ message: 'Student data received successfully!', data: { firstName, lastName, yearAndSection } });
-});
+  app.post('/users', (req, res) => {
+    const newUser = { id: nextUserId++, ...req.body };
+    users.push(newUser);
+    console.log('New user added:', newUser);
+    res.status(201).json({ message: 'User added successfully!', data: newUser });
+  });
 
-app.post('/getUser', (req, res) => {
-  const { firstName, lastName } = req.body;
-  console.log('Received data from User form:', req.body);
-  res.status(200).json({ message: 'User data received successfully!', data: { firstName, lastName } });
-});
+  app.get('/admins', (req, res) => {
+    res.status(200).json(admins);
+  });
 
-app.use((req, res) => {
-  res.status(404).send('API endpoint not found.');
-});
+  app.get('/students', (req, res) => {
+    res.status(200).json(students);
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+  app.get('/users', (req, res) => {
+    res.status(200).json(users);
+  });
+
+  app.put('/students/:id', (req, res) => {
+    const studentId = parseInt(req.params.id);
+    const studentIndex = students.findIndex(s => s.id === studentId);
+    if (studentIndex !== -1) {
+      students[studentIndex] = { ...students[studentIndex], ...req.body };
+      res.status(200).json({ message: 'Student updated successfully!', data: students[studentIndex] });
+    } else {
+      res.status(404).json({ message: 'Student not found.' });
+    }
+  });
+
+  app.delete('/students/:id', (req, res) => {
+    const studentId = parseInt(req.params.id);
+    const initialLength = students.length;
+    students = students.filter(s => s.id !== studentId);
+    if (students.length < initialLength) {
+      res.status(200).json({ message: 'Student deleted successfully.' });
+    } else {
+      res.status(404).json({ message: 'Student not found.' });
+    }
+  });
+
+  app.use((req, res) => {
+    res.status(404).send('API endpoint not found.');
+  });
+
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
